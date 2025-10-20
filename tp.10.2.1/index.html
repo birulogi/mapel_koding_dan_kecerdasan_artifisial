@@ -1,1 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LKPD Literasi Digital - Plugged & Unplugged</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Memuat library untuk Export ke PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        .lkpd-container {
+            /* Styles to ensure the PDF export looks good */
+            padding: 2rem;
+            background-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-radius: 0.75rem;
+            max-width: 900px;
+            margin: 2rem auto;
+            /* Hide border lines for PDF capture */
+            border: none !important;
+        }
+        input[type="text"], textarea {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            transition: all 0.2s;
+            background-color: #f9fafb;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        textarea {
+            min-height: 6rem;
+            resize: vertical;
+        }
+        .soal-table th, .soal-table td {
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .soal-table th {
+            background-color: #f3f4f6;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="w-full bg-indigo-600 shadow-lg sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-2xl font-bold text-white mb-2 sm:mb-0">LKPD Literasi Digital (Kelas 10)</h1>
+            <div class="flex space-x-3">
+                <button id="save-pdf-btn" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-full shadow-md transition duration-150 ease-in-out flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H5a2 2 0 01-2-2V5a2 2 0 012-2h5l2 2h5a2 2 0 012 2v8a2 2 0 01-2 2z"></path></svg>
+                    Simpan (PDF)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200">
+            <button id="tab-plugged" onclick="switchTab('plugged')" class="tab-button px-6 py-3 text-sm font-medium leading-5 text-center transition duration-150 ease-in-out focus:outline-none border-b-2 border-indigo-500 text-indigo-600 bg-white shadow-inner rounded-t-lg">
+                LKPD 1 - Plugged (Dengan Alat Digital/AI)
+            </button>
+            <button id="tab-unplugged" onclick="switchTab('unplugged')" class="tab-button px-6 py-3 text-sm font-medium leading-5 text-center text-gray-500 hover:text-gray-700 focus:outline-none border-b-2 border-transparent hover:border-gray-300 transition duration-150 ease-in-out rounded-t-lg">
+                LKPD 1 - Unplugged (Tanpa Alat Digital)
+            </button>
+        </div>
+        
+        <!-- Tab Content Container -->
+        <div id="lkpd-content-wrapper">
+            
+            <!-- LKPD 1 - PLUGGED -->
+            <div id="lkpd-plugged" class="lkpd-container">
+                <h2 class="text-3xl font-extrabold text-indigo-700 mb-6 border-b-2 pb-2">📝 Lembar Kerja Peserta Didik (LKPD 1 – Plugged)</h2>
+                
+                <!-- Info Dokumen -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-sm bg-indigo-50 p-4 rounded-lg">
+                    <div><span class="font-semibold text-indigo-800">Kode TP:</span> TP.10.2.1</div>
+                    <div><span class="font-semibold text-indigo-800">Mapel:</span> Koding dan Kecerdasan Artifisial</div>
+                    <div><span class="font-semibold text-indigo-800">Kelas/Fase:</span> X (10) / E / Ganjil</div>
+                    <div><span class="font-semibold text-indigo-800">Alokasi Waktu:</span> 2 JP (90 menit)</div>
+                </div>
+
+                <!-- Informasi Kelompok -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-8 shadow-inner">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4">👤 Informasi Kelompok dan Peserta Didik</h3>
+                    <label class="block mb-4">
+                        <span class="text-gray-700 font-medium">Nama Kelompok:</span>
+                        <input type="text" class="mt-1 block w-full" placeholder="Contoh: Kelompok Alfa">
+                    </label>
+                    <span class="text-gray-700 font-medium block mb-2">Anggota Kelompok (Maks. 6 Orang):</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input type="text" placeholder="Anggota 1">
+                        <input type="text" placeholder="Anggota 2">
+                        <input type="text" placeholder="Anggota 3">
+                        <input type="text" placeholder="Anggota 4">
+                        <input type="text" placeholder="Anggota 5">
+                        <input type="text" placeholder="Anggota 6">
+                    </div>
+                </div>
+
+                <!-- Tujuan Pembelajaran -->
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-8">
+                    <h3 class="text-lg font-bold text-green-700 mb-2">🎯 Tujuan Pembelajaran (TP.10.2.1)</h3>
+                    <ul class="list-disc list-inside text-gray-700 pl-4 space-y-1">
+                        <li>Menjelaskan definisi literasi digital.</li>
+                        <li>Mengidentifikasi istilah dasar multimedia (video, audio, gambar, teks).</li>
+                        <li>Merancang dan membuat contoh sederhana produksi konten digital dengan bantuan alat digital atau kecerdasan artifisial (opsional).</li>
+                    </ul>
+                </div>
+
+                <!-- Bagian 1: Mengenal Definisi Literasi Digital -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">1. Mengenal Definisi Literasi Digital</h3>
+                    <p class="font-medium mb-2">Soal 1 – Melengkapi Definisi</p>
+                    <p class="mb-3">Lengkapi kalimat berikut berdasarkan hasil diskusi kelompokmu!</p>
+                    <p class="mb-4">Literasi Digital adalah kemampuan untuk (1) <input type="text" class="inline-block w-32 md:w-48 my-1" placeholder="Jawaban 1">, (2) <input type="text" class="inline-block w-32 md:w-48 my-1" placeholder="Jawaban 2">, dan (3) <input type="text" class="inline-block w-32 md:w-48 my-1" placeholder="Jawaban 3"> informasi digital secara aman, efektif, dan etis.</p>
+
+                    <p class="font-medium mb-2 mt-6">Soal 2 – Benar atau Salah</p>
+                    <p class="mb-3">Diskusikan pernyataan berikut dan beri tanda (✓) pada kolom yang sesuai.</p>
+                    <div class="overflow-x-auto">
+                        <table class="soal-table w-full border-collapse rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="w-3/4">Pernyataan</th>
+                                    <th class="w-1/8 text-center">Benar</th>
+                                    <th class="w-1/8 text-center">Salah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Literasi digital hanya berarti bisa menggunakan media sosial.</td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_1_benar" class="w-5 h-5 text-blue-600 rounded"></td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_1_salah" class="w-5 h-5 text-blue-600 rounded"></td>
+                                </tr>
+                                <tr>
+                                    <td>Seseorang yang paham literasi digital tahu cara membedakan informasi yang valid dan hoaks.</td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_2_benar" class="w-5 h-5 text-blue-600 rounded"></td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_2_salah" class="w-5 h-5 text-blue-600 rounded"></td>
+                                </tr>
+                                <tr>
+                                    <td>Literasi digital juga mencakup etika dan keamanan digital.</td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_3_benar" class="w-5 h-5 text-blue-600 rounded"></td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_3_salah" class="w-5 h-5 text-blue-600 rounded"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bagian 2: Mengenal Istilah Dasar Multimedia -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">2. Mengenal Istilah Dasar Multimedia</h3>
+                    <p class="font-medium mb-2">Soal 3 – Pasangkan Istilah</p>
+                    <p class="mb-3">Pasangkan (tulis huruf A, B, C, atau D) antara Jenis Media Digital dengan Deskripsi yang Tepat.</p>
+                    <div class="overflow-x-auto">
+                        <table class="soal-table w-full border-collapse rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="w-1/4">Jenis Media</th>
+                                    <th class="w-1/6 text-center">Jawaban</th>
+                                    <th class="w-auto">Deskripsi Singkat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1. Teks</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>D. Elemen dasar berupa tulisan yang menyampaikan pesan utama.</td>
+                                </tr>
+                                <tr>
+                                    <td>2. Gambar</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>B. Menampilkan bentuk visual seperti foto, poster, atau ilustrasi.</td>
+                                </tr>
+                                <tr>
+                                    <td>3. Video</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>C. Gabungan gambar bergerak, suara, dan teks untuk menyampaikan informasi.</td>
+                                </tr>
+                                <tr>
+                                    <td>4. Audio</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>A. Dapat berupa lagu, narasi, atau efek suara yang memperkuat pesan.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bagian 3: Produksi Konten Digital Sederhana (Plugged) -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">3. Produksi Konten Digital Sederhana (Plugged)</h3>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-4">
+                        <p class="text-sm text-yellow-800 font-semibold">💡 Penjelasan:</p>
+                        <p class="text-sm text-yellow-800">Produksi konten digital berarti membuat karya berbentuk digital yang dapat dilihat, didengar, atau dibaca orang lain secara daring. Gunakan alat bantu digital atau AI (opsional) untuk merancang konten kalian.</p>
+                    </div>
+
+                    <p class="font-medium mb-2">Soal 4 – Ide Proyek Mini</p>
+                    <p class="mb-3">Kelompokmu akan membuat konten edukatif singkat bertema “Bijak di Dunia Digital”. Tuliskan rencana konten sederhana yang akan kalian buat.</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="soal-table w-full border-collapse rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="w-1/3">Komponen</th>
+                                    <th class="w-2/3">Jawaban</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">Judul / Tema Konten</td>
+                                    <td><input type="text" placeholder="Contoh: Stop Hoax, Start Thinking"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Tujuan Konten</td>
+                                    <td><input type="text" placeholder="Contoh: Mengajak siswa memverifikasi berita sebelum menyebar"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Media yang digunakan</td>
+                                    <td><input type="text" placeholder="Contoh: Gambar/Poster Digital (dengan sedikit teks)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Alat bantu / aplikasi yang akan digunakan</td>
+                                    <td><input type="text" placeholder="Contoh: Canva AI (untuk desain), ChatGPT (untuk draft caption)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Proses pembuatan singkat</td>
+                                    <td><textarea placeholder="Contoh: 1. Buat prompt di ChatGPT untuk 5 tips bijak. 2. Pilih satu tips. 3. Buat desain poster di Canva. 4. Eksport."></textarea></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bagian 4: Refleksi Kelompok -->
+                <div class="mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">4. Refleksi Kelompok</h3>
+                    <div class="space-y-4">
+                        <label class="block">
+                            <span class="font-medium text-gray-700">1. Apa hal baru yang kelompokmu pelajari hari ini?</span>
+                            <textarea class="mt-1" placeholder="Tuliskan di sini..."></textarea>
+                        </label>
+                        <label class="block">
+                            <span class="font-medium text-gray-700">2. Bagian mana dari kegiatan ini yang paling menarik?</span>
+                            <textarea class="mt-1" placeholder="Tuliskan di sini..."></textarea>
+                        </label>
+                        <label class="block">
+                            <span class="font-medium text-gray-700">3. Apa tantangan terbesar yang kalian hadapi saat bekerja secara daring / terbatas koneksi?</span>
+                            <textarea class="mt-1" placeholder="Tuliskan di sini..."></textarea>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Catatan Guru -->
+                <div class="p-4 border-t border-gray-200">
+                    <p class="font-bold text-gray-600">🧭 Catatan Guru:</p>
+                    <ul class="list-disc list-inside text-sm text-gray-500 pl-4">
+                        <li>Guru akan menilai: Pemahaman konsep, Kreativitas rancangan, Kerja sama, dan Pemanfaatan KA.</li>
+                        <li>Asesmen awal dilakukan melalui Blooket dan asesmen akhir melalui Wayground.</li>
+                    </ul>
+                </div>
+
+            </div>
+            
+            <!-- LKPD 1 - UNPLUGGED -->
+            <div id="lkpd-unplugged" class="lkpd-container hidden">
+                <h2 class="text-3xl font-extrabold text-teal-700 mb-6 border-b-2 pb-2">📝 Lembar Kerja Peserta Didik (LKPD 1 – Unplugged)</h2>
+                
+                <!-- Info Dokumen -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-sm bg-teal-50 p-4 rounded-lg">
+                    <div><span class="font-semibold text-teal-800">Kode TP:</span> TP.10.2.1</div>
+                    <div><span class="font-semibold text-teal-800">Mapel:</span> Koding dan Kecerdasan Artifisial</div>
+                    <div><span class="font-semibold text-teal-800">Kelas/Fase:</span> X (10) / E / Ganjil</div>
+                    <div><span class="font-semibold text-teal-800">Alokasi Waktu:</span> 2 JP (90 menit)</div>
+                </div>
+
+                <!-- Informasi Kelompok -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-8 shadow-inner">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4">👤 Informasi Kelompok dan Peserta Didik</h3>
+                    <label class="block mb-4">
+                        <span class="text-gray-700 font-medium">Nama Kelompok:</span>
+                        <input type="text" class="mt-1 block w-full" placeholder="Contoh: Kelompok Beta">
+                    </label>
+                    <span class="text-gray-700 font-medium block mb-2">Anggota Kelompok (Maks. 6 Orang):</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input type="text" placeholder="Anggota 1">
+                        <input type="text" placeholder="Anggota 2">
+                        <input type="text" placeholder="Anggota 3">
+                        <input type="text" placeholder="Anggota 4">
+                        <input type="text" placeholder="Anggota 5">
+                        <input type="text" placeholder="Anggota 6">
+                    </div>
+                </div>
+
+                <!-- Tujuan Pembelajaran -->
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-8">
+                    <h3 class="text-lg font-bold text-green-700 mb-2">🎯 Tujuan Pembelajaran (TP.10.2.1)</h3>
+                    <ul class="list-disc list-inside text-gray-700 pl-4 space-y-1">
+                        <li>Menjelaskan definisi literasi digital.</li>
+                        <li>Mengidentifikasi istilah dasar multimedia (video, audio, gambar, teks).</li>
+                        <li>Merancang dan membuat contoh sederhana produksi konten digital tanpa menggunakan perangkat digital, tetapi tetap memahami prosesnya.</li>
+                    </ul>
+                </div>
+
+                <!-- Bagian 1: Mengenal Definisi Literasi Digital -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">1. Mengenal Definisi Literasi Digital</h3>
+                    <p class="font-medium mb-2">Soal 1 – Melengkapi Definisi</p>
+                    <p class="mb-3">Lengkapi kalimat berikut berdasarkan hasil diskusi kelompokmu!</p>
+                    <p class="mb-4">Literasi Digital adalah kemampuan untuk (1) <input type="text" class="inline-block w-32 md:w-48 my-1" placeholder="Jawaban 1">, (2) <input type="text" class="inline-block w-32 md:w-48 my-1" placeholder="Jawaban 2">, dan (3) <input type="text" class="inline-block w-32 md:w-48 my-1" placeholder="Jawaban 3"> informasi digital secara aman, efektif, dan etis.</p>
+
+                    <p class="font-medium mb-2 mt-6">Soal 2 – Benar atau Salah</p>
+                    <p class="mb-3">Diskusikan pernyataan berikut dan beri tanda (✓) pada kolom yang sesuai.</p>
+                    <div class="overflow-x-auto">
+                        <table class="soal-table w-full border-collapse rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="w-3/4">Pernyataan</th>
+                                    <th class="w-1/8 text-center">Benar</th>
+                                    <th class="w-1/8 text-center">Salah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Literasi digital hanya berarti bisa menggunakan media sosial.</td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_1_un_benar" class="w-5 h-5 text-blue-600 rounded"></td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_1_un_salah" class="w-5 h-5 text-blue-600 rounded"></td>
+                                </tr>
+                                <tr>
+                                    <td>Seseorang yang paham literasi digital tahu cara membedakan informasi yang valid dan hoaks.</td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_2_un_benar" class="w-5 h-5 text-blue-600 rounded"></td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_2_un_salah" class="w-5 h-5 text-blue-600 rounded"></td>
+                                </tr>
+                                <tr>
+                                    <td>Literasi digital juga mencakup etika dan keamanan digital.</td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_3_un_benar" class="w-5 h-5 text-blue-600 rounded"></td>
+                                    <td class="text-center"><input type="checkbox" name="soal2_3_un_salah" class="w-5 h-5 text-blue-600 rounded"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bagian 2: Mengenal Istilah Dasar Multimedia -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">2. Mengenal Istilah Dasar Multimedia</h3>
+                    <p class="font-medium mb-2">Soal 3 – Pasangkan Istilah</p>
+                    <p class="mb-3">Pasangkan (tulis huruf A, B, C, atau D) antara Jenis Media Digital dengan Deskripsi yang Tepat.</p>
+                    <div class="overflow-x-auto">
+                        <table class="soal-table w-full border-collapse rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="w-1/4">Jenis Media</th>
+                                    <th class="w-1/6 text-center">Jawaban</th>
+                                    <th class="w-auto">Deskripsi Singkat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1. Teks</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>D. Elemen dasar berupa tulisan yang menyampaikan pesan utama.</td>
+                                </tr>
+                                <tr>
+                                    <td>2. Gambar</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>B. Menampilkan bentuk visual seperti foto, poster, atau ilustrasi.</td>
+                                </tr>
+                                <tr>
+                                    <td>3. Video</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>C. Gabungan gambar bergerak, suara, dan teks untuk menyampaikan informasi.</td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td>4. Audio</td>
+                                    <td class="text-center"><input type="text" class="w-12 h-8 text-center p-0" placeholder=""></td>
+                                    <td>A. Dapat berupa lagu, narasi, atau efek suara yang memperkuat pesan.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bagian 3: Produksi Konten Digital Sederhana (Unplugged) -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">3. Produksi Konten Digital Sederhana (Versi Unplugged)</h3>
+                    <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg mb-4">
+                        <p class="text-sm text-amber-800 font-semibold">💡 Penjelasan:</p>
+                        <p class="text-sm text-amber-800">Kalian akan berlatih memahami proses produksi konten digital tanpa menggunakan perangkat digital. Artinya, kalian cukup merancang ide dan sketsanya di kertas, seolah-olah kalian sedang membuat konten sungguhan.</p>
+                    </div>
+
+                    <p class="font-medium mb-2">Soal 4 – Ide Proyek Mini</p>
+                    <p class="mb-3">Kelompokmu akan membuat rancangan konten edukatif sederhana bertema “Bijak di Dunia Digital”. Tuliskan rencana konten yang akan kalian buat di bawah ini.</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="soal-table w-full border-collapse rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="w-1/3">Komponen</th>
+                                    <th class="w-2/3">Jawaban</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">Judul / Tema Konten</td>
+                                    <td><input type="text" placeholder="Contoh: Stop Hoax, Start Thinking"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Tujuan Konten</td>
+                                    <td><input type="text" placeholder="Contoh: Mengajak siswa memverifikasi berita sebelum menyebar"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Bentuk Konten</td>
+                                    <td><input type="text" placeholder="Contoh: Poster Sketsa di Kertas, atau Naskah Narasi"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Alat bantu non-digital yang digunakan</td>
+                                    <td><input type="text" placeholder="Contoh: Kertas A4, Spidol Warna, Gunting, Lem"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Langkah-langkah pembuatan singkat</td>
+                                    <td><textarea placeholder="Contoh: 1. Diskusikan pesan utama. 2. Buat sketsa kasar di kertas HVS. 3. Warnai menggunakan spidol. 4. Tulis narasi pendek di bagian bawah."></textarea></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bagian 4: Refleksi Kelompok -->
+                <div class="mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">4. Refleksi Kelompok</h3>
+                    <div class="space-y-4">
+                        <label class="block">
+                            <span class="font-medium text-gray-700">1. Apa hal baru yang kelompokmu pelajari hari ini?</span>
+                            <textarea class="mt-1" placeholder="Tuliskan di sini..."></textarea>
+                        </label>
+                        <label class="block">
+                            <span class="font-medium text-gray-700">2. Bagian mana dari kegiatan ini yang paling menarik?</span>
+                            <textarea class="mt-1" placeholder="Tuliskan di sini..."></textarea>
+                        </label>
+                        <label class="block">
+                            <span class="font-medium text-gray-700">3. Bagaimana cara kalian tetap kreatif walau tanpa menggunakan perangkat digital?</span>
+                            <textarea class="mt-1" placeholder="Tuliskan di sini..."></textarea>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Catatan Guru -->
+                <div class="p-4 border-t border-gray-200">
+                    <p class="font-bold text-gray-600">🧭 Catatan Guru:</p>
+                    <ul class="list-disc list-inside text-sm text-gray-500 pl-4">
+                        <li>Guru akan menilai: Pemahaman konsep, Kreativitas rancangan, Kerja sama, dan Kemampuan menjelaskan ide.</li>
+                        <li>Asesmen awal dilakukan melalui Blooket dan asesmen akhir melalui Wayground.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Message Box for Save Status -->
+    <div id="status-message" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none">
+        Dokumen LKPD berhasil disimpan sebagai PDF!
+    </div>
+
+    <script>
+        const pluggedContent = document.getElementById('lkpd-plugged');
+        const unpluggedContent = document.getElementById('lkpd-unplugged');
+        const tabPlugged = document.getElementById('tab-plugged');
+        const tabUnplugged = document.getElementById('tab-unplugged');
+        const savePdfBtn = document.getElementById('save-pdf-btn');
+        const statusMessage = document.getElementById('status-message');
+        const { jsPDF } = window.jspdf;
+
+        let activeTab = 'plugged';
+
+        /**
+         * Mengatur tampilan tab aktif dan non-aktif.
+         * @param {string} tabName - 'plugged' atau 'unplugged'
+         */
+        function switchTab(tabName) {
+            activeTab = tabName;
+            
+            if (tabName === 'plugged') {
+                pluggedContent.classList.remove('hidden');
+                unpluggedContent.classList.add('hidden');
+                tabPlugged.classList.add('border-indigo-500', 'text-indigo-600', 'bg-white', 'shadow-inner');
+                tabPlugged.classList.remove('border-transparent', 'text-gray-500');
+                tabUnplugged.classList.remove('border-teal-500', 'text-teal-600', 'bg-white', 'shadow-inner');
+                tabUnplugged.classList.add('border-transparent', 'text-gray-500');
+            } else {
+                pluggedContent.classList.add('hidden');
+                unpluggedContent.classList.remove('hidden');
+                tabPlugged.classList.remove('border-indigo-500', 'text-indigo-600', 'bg-white', 'shadow-inner');
+                tabPlugged.classList.add('border-transparent', 'text-gray-500');
+                tabUnplugged.classList.add('border-teal-500', 'text-teal-600', 'bg-white', 'shadow-inner');
+                tabUnplugged.classList.remove('border-transparent', 'text-gray-500');
+            }
+        }
+
+        /**
+         * Menampilkan pesan status sementara
+         */
+        function showStatus(message, isError = false) {
+            statusMessage.textContent = message;
+            statusMessage.style.backgroundColor = isError ? '#dc2626' : '#10b981'; // Red or Green
+            statusMessage.classList.remove('opacity-0', 'pointer-events-none');
+            statusMessage.classList.add('opacity-100');
+            setTimeout(() => {
+                statusMessage.classList.remove('opacity-100');
+                statusMessage.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        /**
+         * Fungsi untuk menyimpan LKPD aktif sebagai PDF.
+         */
+        savePdfBtn.addEventListener('click', async () => {
+            const targetElement = activeTab === 'plugged' ? pluggedContent : unpluggedContent;
+            const fileName = `LKPD_LiterasiDigital_${activeTab.toUpperCase()}.pdf`;
+            
+            savePdfBtn.disabled = true;
+            savePdfBtn.innerHTML = '<svg class="w-5 h-5 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 0012 4.001a7.973 7.973 0 00-2.016.326C8.84 5.39 7.7 6.743 7 8m6 10a7.973 7.973 0 01-6 2.001A8.001 8.001 0 0012 20a7.973 7.973 0 002.016-.326C15.16 18.61 16.3 17.257 17 16"></path></svg>Membuat PDF...';
+
+
+            try {
+                // Konfigurasi untuk html2canvas
+                const canvas = await html2canvas(targetElement, {
+                    scale: 2, // Meningkatkan kualitas gambar
+                    logging: false,
+                    useCORS: true,
+                    // Tambahkan properti window.scrollY untuk mengatasi masalah posisi
+                    windowHeight: targetElement.scrollHeight,
+                    onclone: (document) => {
+                        // Kloning semua elemen input/textarea ke div yang akan dicapture
+                        document.querySelectorAll('.lkpd-container input, .lkpd-container textarea').forEach(el => {
+                            if (el.type === 'checkbox') {
+                                // Untuk checkbox, tambahkan teks 'V' jika dicentang
+                                if (el.checked) {
+                                    const checkmark = document.createElement('span');
+                                    checkmark.style.fontSize = '12px';
+                                    checkmark.textContent = ' (✓)';
+                                    el.parentNode.insertBefore(checkmark, el.nextSibling);
+                                }
+                            } else {
+                                // Untuk input teks, tampilkan nilainya (value)
+                                const val = el.value || el.placeholder;
+                                el.style.border = '1px solid #000'; // Pastikan border terlihat
+                                el.style.backgroundColor = '#fff';
+                                el.style.color = '#000';
+                                el.style.padding = '0.2rem';
+                            }
+                        });
+                        // Hapus tombol-tombol navigasi/save dari tangkapan
+                        document.getElementById('save-pdf-btn').style.display = 'none';
+                        document.getElementById('tab-plugged').style.display = 'none';
+                        document.getElementById('tab-unplugged').style.display = 'none';
+                    }
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save(fileName);
+                showStatus("Dokumen LKPD berhasil disimpan sebagai PDF!");
+
+            } catch (error) {
+                console.error("Gagal membuat PDF:", error);
+                showStatus("Gagal menyimpan dokumen. Cek konsol untuk detail.", true);
+            } finally {
+                savePdfBtn.disabled = false;
+                savePdfBtn.innerHTML = '<svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H5a2 2 0 01-2-2V5a2 2 0 012-2h5l2 2h5a2 2 0 012 2v8a2 2 0 01-2 2z"></path></svg>Simpan (PDF)';
+            }
+        });
+
+        // Inisialisasi: tampilkan tab plugged saat pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('plugged');
+        });
+
+    </script>
+</body>
+</html>
 
